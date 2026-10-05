@@ -128,17 +128,18 @@ function renderBreakdown() {
     </div>`;
   }).join('') : '<p class="empty-msg">Add trades with a strategy to see this.</p>';
 
-  ['Conservative', 'Aggressive'].forEach(e => {
+  const entryCards = document.getElementById('entry-cards');
+  entryCards.innerHTML = ['Conservative', 'Aggressive'].map(e => {
     const arr = trades.filter(t => t.entry === e);
     const st = calcStats(arr);
-    document.getElementById('entry-cards').innerHTML += `<div class="strat-card">
+    return `<div class="strat-card">
       <div><div class="strat-name">${e}</div><div class="strat-sub">${arr.length} trades</div></div>
       <div style="display:flex;gap:12px;align-items:center;">
         <span class="${st.wr >= 50 ? 'pos' : 'neg'}" style="font-weight:600;font-size:13px;">${arr.length ? st.wr.toFixed(0) + '% WR' : '—'}</span>
         <span class="trade-r ${st.netR >= 0 ? 'pos' : 'neg'}" style="font-size:13px;">${arr.length ? fmt(st.netR) + 'R' : '—'}</span>
       </div>
     </div>`;
-  });
+  }).join('');
 
   const second = trades.filter(t => t.attempt === '2nd');
   const secWR = second.length ? (second.filter(t => t.result === 'win').length / second.length * 100) : 0;
@@ -353,7 +354,13 @@ const today = new Date().toISOString().split('T')[0];
 document.getElementById('in-date').value = today;
 const todayDay = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()];
 const dayEl = document.getElementById('in-day');
-for (let i = 0; i < dayEl.options.length; i++) { if (dayEl.options[i].value === todayDay) dayEl.selectedIndex = i; }
+const workingDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+const matchingIndex = workingDays.indexOf(todayDay);
+if (matchingIndex >= 0) {
+  dayEl.selectedIndex = matchingIndex;
+} else {
+  dayEl.selectedIndex = 0;
+}
 
 loadTrades();
 renderOverview();
